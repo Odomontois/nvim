@@ -59,7 +59,6 @@ return {
         jsonls = {},
         yamlls = {},
         -- marksman = {},
-        markdown_oxide = {},
         -- tsserver = {},
         -- html = { filetypes = { 'html', 'twig', 'hbs'} },
         bashls = {},
