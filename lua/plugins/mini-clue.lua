@@ -9,40 +9,6 @@ return {
       vim.keymap.del('n', lhs)
     end
 
-    -- -- Add a-z/A-Z marks.
-    -- local function mark_clues()
-    --   local marks = {}
-    --   vim.list_extend(marks, vim.fn.getmarklist(vim.api.nvim_get_current_buf()))
-    --   vim.list_extend(marks, vim.fn.getmarklist())
-    --
-    --   return vim.iter.map(function(mark)
-    --     local key = mark.mark:sub(2, 2)
-    --
-    --     -- Just look at letter marks.
-    --     if not string.match(key, '^%a') then
-    --       return nil
-    --     end
-    --
-    --     -- For global marks, use the file as a description.
-    --     -- For local marks, use the line number and content.
-    --     local desc
-    --     if mark.file then
-    --       desc = vim.fn.fnamemodify(mark.file, ':p:~:.')
-    --     elseif mark.pos[1] and mark.pos[1] ~= 0 then
-    --       local line_num = mark.pos[2]
-    --       local lines = vim.fn.getbufline(mark.pos[1], line_num)
-    --       if lines and lines[1] then
-    --         desc = string.format('%d: %s', line_num, lines[1]:gsub('^%s*', ''))
-    --       end
-    --     end
-    --
-    --     if desc then
-    --       return { mode = 'n', keys = string.format('`%s', key), desc = desc }
-    --     end
-    --   end, marks)
-    -- end
-
-
     -- Clues for recorded macros.
     local function macro_clues()
       local res = {}
