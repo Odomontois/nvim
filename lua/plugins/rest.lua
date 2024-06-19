@@ -3,10 +3,6 @@ return {
     "vhyrro/luarocks.nvim",
     enabled = true,
     lazy = true,
-    -- branch = "go-away-python",
-    -- config = function()
-    --   require("luarocks").setup({})
-    -- end,
     config = true,
     opts = {
       rocks = { "lua-curl", "nvim-nio", "mimetypes", "xml2lua" }
