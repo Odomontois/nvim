@@ -8,7 +8,6 @@ return {
     { "hrsh7th/cmp-nvim-lsp" },
     { "hrsh7th/cmp-path" },
     { "onsails/lspkind.nvim" },
-    { "saadparwaiz1/cmp_luasnip" },
     { 'f3fora/cmp-spell' },
     { 'hrsh7th/cmp-cmdline' },
     { 'ray-x/cmp-treesitter' },
@@ -27,18 +26,12 @@ return {
       return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
     end
 
-    local luasnip = require("luasnip")
     local cmp = require("cmp")
     local lspkind = require('lspkind')
     lspkind.init()
 
     cmp.setup({
-      snippet = {
-        expand = function(args)
-          luasnip.lsp_expand(args.body)
-        end,
-      },
-      mapping = {
+     mapping = {
         ['<C-n>'] = cmp.mapping.select_next_item(),
         ['<C-p>'] = cmp.mapping.select_prev_item(),
         ['<Down>'] = cmp.mapping.select_next_item(),
@@ -56,10 +49,6 @@ return {
           if cmp.visible() then
             -- cmp.confirm({ select = true })
             cmp.select_next_item()
-          elseif luasnip.expand_or_locally_jumpable() then
-            luasnip.expand_or_jump()
-            -- elseif luasnip.expand_or_jumpable() then
-            --   luasnip.expand_or_jump()
           elseif has_words_before() then
             cmp.complete()
           else
@@ -69,10 +58,6 @@ return {
         ["<S-Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
             cmp.select_prev_item()
-          elseif luasnip.expand_or_locally_jumpable() then
-            luasnip.expand_or_jump()
-            -- elseif luasnip.jumpable(-1) then
-            --   luasnip.jump(-1)
           else
             fallback()
           end
@@ -84,7 +69,6 @@ return {
       sources = {
         { name = "nvim_lsp" },
         { name = "nvim_lsp_signature_help" },
-        { name = "luasnip",                keyword_length = 3, max_item_count = 3 },
         { name = "buffer",                 keyword_length = 5, max_item_count = 3 },
         { name = 'spell' },
         { name = 'treesitter',             keyword_length = 5, max_item_count = 3 },
@@ -97,7 +81,6 @@ return {
           maxwidth = 50,         -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
           ellipsis_char = '...', -- when popup menu exceed maxwidth, the truncated part would show ellipsis_char instead (must define maxwidth first)
           menu = {
-            luasnip = "[snip]",
             nvim_lsp = "[LSP]",
             buffer = "[buf]",
             path = "[path]",

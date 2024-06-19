@@ -58,11 +58,6 @@ return {
         rust_analyzer = {},
         jsonls = {},
         yamlls = {},
-        -- marksman = {},
-        markdown_oxide = {},
-        -- tsserver = {},
-        -- html = { filetypes = { 'html', 'twig', 'hbs'} },
-        bashls = {},
         lua_ls = { -- TODO fix maybe name is lua-language_server
           Lua = {
             workspace = { checkThirdParty = false },
