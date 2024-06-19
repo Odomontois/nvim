@@ -96,7 +96,6 @@ return {
       },
       clues = {
         -- Leader/movement groups.
-        { mode = 'n', keys = '<leader>b',  desc = '+buffers' },
         { mode = 'n', keys = '<leader>c',  desc = '+copilot' },
         { mode = 'v', keys = '<leader>c',  desc = '+copilot' },
         { mode = 'n', keys = '<leader>d',  desc = '+diagnostics' },
