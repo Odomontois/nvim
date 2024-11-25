@@ -1,8 +1,9 @@
 return {
   {
+    -- TODO check if it's worth to replace with https://github.com/windwp/windline.nvim
     "rebelot/heirline.nvim",
+    -- enabled = false,
     event = "ColorScheme",
-    enabled = true,
     dependencies = {
       "lewis6991/gitsigns.nvim",
       -- "nvim-lua/lsp-status.nvim"
@@ -51,41 +52,75 @@ return {
         -- corresponding string and color. We can put these into `static` to compute
         -- them at initialisation time.
         static = {
-          mode_names = { -- change the strings if you like it vvvvverbose!
-            n = "",
-            no = "",
-            nov = "",
-            noV = "",
-            ["no\22"] = "",
-            niI = "Ni",
-            niR = "Nr",
-            niV = "Nv",
-            nt = "Nt",
-            v = "",
-            vs = "Vs",
-            V = "",
-            Vs = "Vs",
-            ["\22"] = "^",
-            ["\22s"] = "^",
-            s = "S",
-            S = "S_",
-            ["\19"] = "^S",
-            i = "",
-            ic = "Ic",
-            ix = "Ix",
-            R = "R",
-            Rc = "Rc",
-            Rx = "Rx",
-            Rv = "Rv",
-            Rvc = "Rv",
-            Rvx = "Rv",
-            c = "",
-            cv = "Ex",
-            r = "...",
-            rm = "M",
-            ["r?"] = "?",
-            ["!"] = "!",
-            t = "",
+          mode_names = {    -- change the strings if you like it vvvvverbose!
+            n = "",         -- Normal mode
+            no = "",        -- Operator-pending mode
+            nov = "",       -- Operator-pending mode (after `v`)
+            noV = "",       -- Operator-pending mode (after `V`)
+            ["no\22"] = "", -- Operator-pending mode (after `Ctrl-V`)
+            niI = "Ni",     -- Normal mode (insert mode completion)
+            niR = "Nr",     -- Normal mode (replace mode completion)
+            niV = "Nv",     -- Normal mode (visual mode completion)
+            nt = "Nt",      -- Normal mode (terminal)
+            v = "",         -- Visual mode
+            vs = "Vs",      -- Visual mode (select mode)
+            V = "",         -- Visual line mode
+            Vs = "Vs",      -- Visual line mode (select mode)
+            ["\22"] = "^",  -- Visual block mode (Ctrl-V)
+            ["\22s"] = "^", -- Visual block mode (select mode)
+            s = "S",        -- Select mode
+            S = "S_",       -- Select line mode
+            ["\19"] = "^S", -- Select block mode (Ctrl-S)
+            i = "",         -- Insert mode
+            ic = "Ic",      -- Insert mode (completion)
+            ix = "Ix",      -- Insert mode (completion)
+            R = "R",        -- Replace mode
+            Rc = "Rc",      -- Replace mode (completion)
+            Rx = "Rx",      -- Replace mode (completion)
+            Rv = "Rv",      -- Replace mode (visual mode)
+            Rvc = "Rv",     -- Replace mode (visual mode completion)
+            Rvx = "Rv",     -- Replace mode (visual mode completion)
+            c = "",         -- Command-line mode
+            cv = "Ex",      -- Command-line mode (Vim Ex mode)
+            r = "...",      -- Hit-enter prompt
+            rm = "M",       -- More prompt
+            ["r?"] = "?",   -- Confirm prompt
+            ["!"] = "!",    -- Shell or external command is executing
+            t = "",         -- Terminal mode
+            -- n = "",
+            -- no = "",
+            -- nov = "",
+            -- noV = "",
+            -- ["no\22"] = "",
+            -- niI = "Ni",
+            -- niR = "Nr",
+            -- niV = "Nv",
+            -- nt = "Nt",
+            -- v = "",
+            -- vs = "Vs",
+            -- V = "",
+            -- Vs = "Vs",
+            -- ["\22"] = "^",
+            -- ["\22s"] = "^",
+            -- s = "S",
+            -- S = "S_",
+            -- ["\19"] = "^S",
+            -- i = "",
+            -- ic = "Ic",
+            -- ix = "Ix",
+            -- R = "R",
+            -- Rc = "Rc",
+            -- Rx = "Rx",
+            -- Rv = "Rv",
+            -- Rvc = "Rv",
+            -- Rvx = "Rv",
+            -- c = "",
+            -- cv = "Ex",
+            -- r = "...",
+            -- rm = "M",
+            -- ["r?"] = "?",
+            -- ["!"] = "!",
+            -- t = "",
           },
           mode_colors = {
             n = colors.red,
@@ -109,7 +144,7 @@ return {
         -- Same goes for the highlight. Now the foreground will change according to the current mode.
         hl = function(self)
           local mode = self.mode:sub(1, 1) -- get only the first mode character
-          return { fg = self.mode_colors[mode],bg = colors.bright_bg, bold = true, }
+          return { fg = self.mode_colors[mode], bg = colors.bright_bg, bold = true, }
         end,
         -- Re-evaluate the component only on ModeChanged event!
         -- Also allows the statusline to be re-evaluated when entering operator-pending mode
@@ -303,6 +338,35 @@ return {
         hl = { fg = colors.blue, bg = colors.bright_bg },
       }
 
+      -- TODO add colored icons for lsp
+      local LspIcons = function()
+        local dev_icons = require("nvim-web-devicons").get_icon_color_by_filetype
+        local icon_color = function(ext)
+          local icon, color = dev_icons(ext)
+          return { icon = icon, color = color }
+        end
+        return {
+          lua_ls = dev_icons("lua"),
+          copilot = { icon = "", color = colors.cyan },
+          metals = dev_icons("scala"),
+          pyright = dev_icons("python"),
+          kotlin_language_server = dev_icons("kotlin"),
+          jsonls = dev_icons("json"),
+          rust_analyzer = dev_icons("rust"),
+          yamlls = dev_icons("yaml"),
+          bashls = dev_icons("bash"),
+          marksman = dev_icons("markdown"),
+        }
+      end
+
+      local LspIcon = function(name)
+        local icon = LspIcons(name)
+        return {
+          provider = icon.icon,
+          hl = { fg = icon.color },
+        }
+      end
+
       local LSPActive = {
         condition = conditions.lsp_attached,
         update    = { 'LspAttach', 'LspDetach' },
@@ -343,6 +407,55 @@ return {
         }
 
       }
+
+      -- ---@type table<string, string?>
+      -- local progress_status = {
+      --   client = nil,
+      --   kind = nil,
+      --   title = nil,
+      -- }
+      --
+      -- vim.api.nvim_create_autocmd('LspProgress', {
+      --   group = vim.api.nvim_create_augroup('statusline', { clear = true }),
+      --   desc = 'Update LSP progress in statusline',
+      --   pattern = { 'begin', 'end' },
+      --   callback = function(args)
+      --     -- This should in theory never happen, but I've seen weird errors.
+      --     if not args.data then
+      --       return
+      --     end
+      --
+      --     progress_status = {
+      --       client = vim.lsp.get_client_by_id(args.data.client_id).name,
+      --       kind = args.data.result.value.kind,
+      --       title = args.data.result.value.title,
+      --     }
+      --
+      --     if progress_status.kind == 'end' then
+      --       progress_status.title = nil
+      --       -- Wait a bit before clearing the status.
+      --       vim.defer_fn(function()
+      --         vim.cmd.redrawstatus()
+      --       end, 3000)
+      --     else
+      --       vim.cmd.redrawstatus()
+      --     end
+      --   end,
+      -- })
+      -- --- The latest LSP progress message.
+      -- ---@return string
+      -- local function lsp_progress_component()
+      --   if not progress_status.client or not progress_status.title then
+      --     return ''
+      --   end
+      --
+      --   return table.concat {
+      --     '%#StatuslineSpinner#󱥸 ',
+      --     string.format('%%#StatuslineTitle#%s  ', progress_status.client),
+      --     string.format('%%#StatuslineItalic#%s...', progress_status.title),
+      --   }
+      -- end
+
 
       local Diagnostics = {
 
@@ -526,12 +639,98 @@ return {
 
       ViMode = utils.surround({ "", "" }, colors.bright_bg, { ViMode, MacroRec })
 
+      -- -- useful showcmd analog when using cmdheight=0 (like with noice.nvim)
+      local events = {
+        show = "msg_show",
+        clear = "msg_clear",
+        showmode = "msg_showmode",
+        showcmd = "msg_showcmd",
+        ruler = "msg_ruler",
+        history_show = "msg_history_show",
+        history_clear = "msg_history_clear",
+      }
+      local ns = vim.api.nvim_create_namespace('showcmd_msg')
+
+      local last_showcmd_msg = ""
+      local last_showcmd_pending
+      local last_showcmd_linger = 1000
+
+      -- local function append(contents)
+      --
+      -- end
+
+      local function set_showmess(mess)
+        if last_showcmd_pending then
+          last_showcmd_pending:stop()
+          last_showcmd_pending = nil
+        end
+        if mess ~= '' then
+          last_showcmd_msg = mess
+          last_showcmd_pending = vim.defer_fn(function()
+            last_showcmd_msg = ''
+          end, last_showcmd_linger)
+        end
+      end
+
+      -- vim.ui_attach(ns, { ext_messages = true }, function(event, ...)
+      --   local content = ...
+      --   if event == events.showcmd then
+      --   print(event)
+      --     if #content > 0 then
+      --       local it = vim.iter(content)
+      --       it:map(function(tup) return tup[2] end)
+      --       set_showmess(it:join(''))
+      --     end
+      --     return
+      --   elseif event == events.clear then
+      --   print(event)
+      --     last_showcmd_msg = ""
+      --     return
+      --   elseif event == events.show then
+      --   print(event)
+      --     if #content > 0 then
+      --       local it = vim.iter(content)
+      --       it:map(function(tup) return tup[2] end)
+      --       print(it:join(''))
+      --       return true
+      --     end
+      --   end
+      --
+      --   return false
+      -- end)
+
+
+
+      local function showcmd()
+        return last_showcmd_msg
+      end
+
+      -- local CmdStatusLine = {
+      --   condition = function()
+      --     return
+      --   end,
+      --   EndBar,
+      --   ShowCmd,
+      --   AlignL,
+      --   Align,
+      --   EndBar
+      -- }
+
+      -- vim.opt.showcmdloc = 'statusline'
+      -- local ShowCmd = {
+      --   condition = function()
+      --     return vim.o.cmdheight == 0
+      --   end,
+      --   provider = "%3.5(%S%)",
+      -- }
+
       local DefaultStatusline = {
         EndBar, ViMode, WorkDir, FileNameBlock,
         AlignL,
         Space, Diagnostics, Align,
         DAPMessages, Align,
-        SearchCount, Space, LSPActive, Space, GitBranch, GitChanges, FileFormat,
+        -- SearchCount,
+        Space, LSPActive, Space, GitBranch, GitChanges, FileFormat,
         { flexible = 3, { FileEncoding, Space }, { provider = "" } },
         Space, Ruler, Space, ScrollBar, Space, EndBar
       }

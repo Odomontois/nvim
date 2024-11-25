@@ -97,17 +97,13 @@ return {
       clues = {
         -- Leader/movement groups.
         { mode = 'n', keys = '<leader>b',  desc = '+buffers' },
-        { mode = 'n', keys = '<leader>c',  desc = '+copilot' },
-        { mode = 'v', keys = '<leader>c',  desc = '+copilot' },
-        { mode = 'n', keys = '<leader>d',  desc = '+diagnostics' },
+        { mode = 'n', keys = '<leader>c',  desc = '+code' },
+        { mode = 'v', keys = '<leader>c',  desc = '+code' },
+        { mode = 'n', keys = '<leader>co', desc = '+other' },
+        { mode = 'n', keys = '<leader>d',  desc = '+debug' },
+        { mode = 'n', keys = '<leader>k',  desc = '+copilot' },
+        { mode = 'v', keys = '<leader>k',  desc = '+copilot' },
         { mode = 'n', keys = '<leader>g',  desc = '+goto' },
-        -- LSP
-        { mode = 'n', keys = '<leader>l',  desc = '+lsp' },
-        { mode = 'v', keys = '<leader>l',  desc = '+lsp' },
-        { mode = 'n', keys = '<leader>ld', desc = '+debug' },
-        { mode = 'n', keys = '<leader>lm', desc = '+metals' },
-        { mode = 'n', keys = '<leader>lo', desc = '+other' },
-        { mode = 'n', keys = '<leader>lv', desc = '+view' },
         -- GIT
         { mode = 'n', keys = '<leader>m',  desc = '+git' },
         { mode = 'v', keys = '<leader>m',  desc = '+git' },
@@ -120,7 +116,6 @@ return {
         { mode = 'n', keys = '<leader>s',  desc = '+search' },
         { mode = 'n', keys = '<leader>ss', desc = '+symbol' },
         { mode = 'n', keys = '<leader>t',  desc = '+tabs' },
-        { mode = 'n', keys = '<leader>v',  desc = '+view' },
         -- Builtins.
         miniclue.gen_clues.builtin_completion(),
         miniclue.gen_clues.g(),

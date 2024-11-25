@@ -1,6 +1,7 @@
 return {
   "hrsh7th/nvim-cmp",
   event = "InsertEnter",
+  -- enabled = false,
   dependencies = {
     { "hrsh7th/cmp-buffer" },
     { "hrsh7th/cmp-cmdline" },
@@ -20,13 +21,48 @@ return {
     local has_words_before = function()
       unpack = unpack or table.unpack
       local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-      return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+      return col ~= 0 and vim.api.nvim_buf_get_text(0, line - 1, 0, line - 1, col, {})[1]:match("^%s*$") == nil
     end
 
     local luasnip = require("luasnip")
     local cmp = require("cmp")
     local icons = require('util.icons')
     local symbol_kinds = icons.symbol_kinds
+
+    local select_next = cmp.mapping(function(fallback)
+      -- local copilot = require 'copilot.suggestion'
+
+      -- if copilot.is_visible() then
+      --   copilot.accept()
+      -- elseif cmp.visible() and has_words_before() then
+      if cmp.visible() and has_words_before() then
+        cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+
+        -- elseif cmp.visible() then
+        --   -- cmp.confirm({ select = true })
+        --   cmp.select_next_item()
+      elseif luasnip.expand_or_locally_jumpable() then
+        luasnip.expand_or_jump()
+        -- elseif luasnip.expand_or_jumpable() then
+        --   luasnip.expand_or_jump()
+        -- elseif has_words_before() then
+        --   cmp.complete()
+      else
+        fallback()
+      end
+    end, { 'i', 's' })
+
+    local select_prev = cmp.mapping(function(fallback)
+      if cmp.visible() then
+        cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
+      elseif luasnip.expand_or_locally_jumpable() then
+        luasnip.expand_or_jump(-1)
+        -- elseif luasnip.jumpable(-1) then
+        --   luasnip.jump(-1)
+      else
+        fallback()
+      end
+    end, { 'i', 's' })
 
     cmp.setup({
       snippet = {
@@ -35,10 +71,10 @@ return {
         end,
       },
       mapping = {
-        ['<C-n>'] = cmp.mapping.select_next_item(),
-        ['<C-p>'] = cmp.mapping.select_prev_item(),
-        ['<Down>'] = cmp.mapping.select_next_item(),
-        ['<Up>'] = cmp.mapping.select_prev_item(),
+        ['<C-n>'] = select_next,
+        ['<C-p>'] = select_prev,
+        ['<Down>'] = select_next,
+        ['<Up>'] = select_prev,
         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
         ['<C-f>'] = cmp.mapping.scroll_docs(4),
         -- Explicitly request completions.
@@ -47,50 +83,55 @@ return {
         ['<C-/>'] = cmp.mapping.close(),
         ['<Right>'] = cmp.mapping.abort {},
         ["<CR>"] = cmp.mapping.confirm({
-          behavior = cmp.ConfirmBehavior.Replace,
-          select = true
+          behavior = cmp.ConfirmBehavior.Insert,
+          select = false
         }),
-        ["<Tab>"] = cmp.mapping(function(fallback)
-          local copilot = require 'copilot.suggestion'
-
-          if copilot.is_visible() then
-            copilot.accept()
-          elseif cmp.visible() then
-            -- cmp.confirm({ select = true })
-            cmp.select_next_item()
-          elseif luasnip.expand_or_locally_jumpable() then
-            luasnip.expand_or_jump()
-            -- elseif luasnip.expand_or_jumpable() then
-            --   luasnip.expand_or_jump()
-          elseif has_words_before() then
-            cmp.complete()
-          else
-            fallback()
-          end
-        end, { 'i', 's' }),
-        ["<S-Tab>"] = cmp.mapping(function(fallback)
-          if cmp.visible() then
-            cmp.select_prev_item()
-          elseif luasnip.expand_or_locally_jumpable() then
-            luasnip.expand_or_jump(-1)
-            -- elseif luasnip.jumpable(-1) then
-            --   luasnip.jump(-1)
-          else
-            fallback()
-          end
-        end, { 'i', 's' }),
+        ["<Tab>"] = select_next,
+        ["<S-Tab>"] = select_prev,
       },
       completion = {
-        completeopt = "menuone,preview,noinsert,noselect",
+        completeopt = "menuone,preview,noinsert",
       },
-      sources = {
-        { name = "nvim_lsp" },
-        { name = "nvim_lsp_signature_help" },
-        { name = "luasnip",                keyword_length = 3, max_item_count = 3 },
-        { name = "buffer",                 keyword_length = 5, max_item_count = 3 },
-        { name = 'treesitter',             keyword_length = 5, max_item_count = 3 },
-        { name = "nvim_lua",               group_index = 1 },
-        { name = "lazydev",                group_index = 0 } -- set group index to 0 to skip loading LuaLS completions
+      sources = cmp.config.sources {
+        -- { name = "nvim_lsp_signature_help" },
+        -- { name = "cmp_tabnine", priority = 8 },
+        { name = "nvim_lsp",    priority = 8 },
+        { name = "ultisnips",   priority = 7 },
+        { name = "luasnip",     keyword_length = 3, max_item_count = 3, priority = 7 },
+        { name = "buffer",      priority = 7 },                                        -- first for locality sorting?
+        { name = "spell",       keyword_length = 3, priority = 5, keyword_pattern = [[\w\+]] },
+        { name = "dictionary",  keyword_length = 3, priority = 5, keyword_pattern = [[\w\+]] }, -- from uga-rosa/cmp-dictionary plug
+        -- { name = 'rg'},
+        { name = "nvim_lua",    priority = 5 },
+        -- { name = 'path' },
+        { name = "fuzzy_path",  priority = 4 }, -- from tzacher
+        { name = "calc",        priority = 3 },
+        -- { name = 'vsnip' },
+        -- { name = "nvim_lsp", priority = 8 },
+        -- { name = "nvim_lsp_signature_help" },
+        -- -- { name = "copilot",                group_index = 2 },
+        -- { name = "luasnip",                keyword_length = 3, max_item_count = 3 },
+        -- { name = "buffer",                 priority = 7 },
+        -- -- { name = "buffer",                 keyword_length = 5, max_item_count = 3, priority = 8 },
+        -- { name = 'treesitter',             keyword_length = 5, max_item_count = 3 },
+        -- { name = "nvim_lua",               group_index = 1 },
+        -- { name = "lazydev",                group_index = 0 } -- set group index to 0 to skip loading LuaLS completions
+      },
+      sorting = {
+        priority_weight = 1.0,
+        comparators = {
+          -- require("copilot_cmp.comparators").prioritize,
+          cmp.config.compare.locality,
+          cmp.config.compare.recently_used,
+          -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
+          cmp.config.compare.score, -- based on :  score = score + ((#sources - (source_index - 1)) * sorting.priority_weight
+          cmp.config.compare.offset,
+          cmp.config.compare.order,
+          -- cmp.config.compare.exact,
+          -- cmp.config.compare.kind,
+          -- cmp.config.compare.sort_text,
+          -- cmp.config.compare.length,
+        },
       },
       formatting = {
         format = function(_, vim_item)
@@ -116,6 +157,9 @@ return {
       window = {
         completion = cmp.config.window.bordered(),
         documentation = cmp.config.window.bordered(),
+      },
+      xperimental = {
+        ghost_text = true,
       },
     })
 

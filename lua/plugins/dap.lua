@@ -65,8 +65,25 @@ return {
         windows = { indent = 1 },
         render = {
           max_type_length = nil, -- Can be integer or nil.
+          -- Enable ANSI color support TODO check if this exists
+          ansi_colors = true,
         },
       }
+    },
+    {
+      "rcarriga/cmp-dap",
+      enabled = false,
+      dependencies = { "nvim-cmp" },
+      config = function()
+        require("cmp").setup.filetype(
+          { "dap-repl", "dapui_watches", "dapui_hover" },
+          {
+            sources = {
+              { name = "dap" },
+            },
+          }
+        )
+      end,
     },
     {
       'theHamsta/nvim-dap-virtual-text',
@@ -101,10 +118,14 @@ return {
     { '<leader>ldb', "<cmd>lua require('dap').toggle_breakpoint()<CR>",                                  desc = 'toggle [b]reakpoint' },
     { '<leader>ldB', "<cmd>lua require('dap').set_breakpoint(vim.fn.input 'Breakpoint condition: '<CR>", desc = 'set [B]reakpoint condition' },
     { '<leader>ldt', "<cmd>lua require('dapui').toggle()<CR>",                                           desc = '[t]oggle ui' },
+    --- FZF
+    { "<leader>lds", "<cmd>FzfLua dap_breakpoints<cr>",                                                  desc = "debug breakpoints" },
+    { "<leader>ldv", "<cmd>FzfLua dap_variables<cr>",                                                    desc = "debug variables" },
   },
   config = function()
     local dap = require 'dap'
     local dapui = require 'dapui'
+    local icons = require 'util.icons'
 
     -- :h metals-nvim-dap
     dap.configurations.scala = {
@@ -112,6 +133,7 @@ return {
         type = "scala",
         request = "launch",
         name = "Run or Test",
+        console = "integratedTerminal",
         metals = {
           runType = "runOrTestFile",
         }
@@ -120,6 +142,7 @@ return {
         type = "scala",
         request = "launch",
         name = "Test Target",
+        console = "integratedTerminal",
         metals = {
           runType = "testTarget",
         },
@@ -128,6 +151,7 @@ return {
         type = "scala",
         request = "launch",
         name = "Run or test with input",
+        console = "integratedTerminal",
         metals = {
           runType = "runOrTestFile",
           args = function()

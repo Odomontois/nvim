@@ -1,6 +1,7 @@
 return {
   -- Only for cursor animation
   'echasnovski/mini.animate',
+  event = "VeryLazy",
   config = function ()
     require('mini.animate').setup(
       {

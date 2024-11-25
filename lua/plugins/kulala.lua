@@ -14,5 +14,15 @@ return {
     { "<leader>hc", "<cmd>lua require('kulala').copy()<cr>", desc = "Copy as curl" },
     { "<leader>hp", "<cmd>lua require('kulala').from_curl()<cr>", desc = "Paste from curl" },
   },
-  opts = {},
+  opts = {
+    winbar = true,
+    default_view = "headers_body"
+  },
 }
+
+-- local miniclue = require('mini.clue')
+-- miniclue.setup({
+--   clues = {
+--        { mode = 'n', keys = '<Leader>mh', postkeys = '<Leader>m' },
+--   },
+-- })
